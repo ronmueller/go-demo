@@ -17,7 +17,7 @@ func (f foo) my() {
 }
 
 func (f foo) other() {
-	fmt.Println("my.other")
+	fmt.Println("foo.other")
 }
 
 type bar struct{}
