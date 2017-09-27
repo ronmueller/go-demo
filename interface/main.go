@@ -1,65 +1,37 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type myinterface interface {
-	my()
+type User struct {
+	FirstName, LastName string
 }
 
-type otherinterface interface {
-	other()
+func (u *User) Name() string {
+	return fmt.Sprintf("%s %s", u.FirstName, u.LastName)
 }
 
-type foo struct{}
-
-func (f foo) my() {
-	fmt.Println("foo.my")
+type Customer struct {
+	Id       int
+	FullName string
 }
 
-func (f foo) other() {
-	fmt.Println("foo.other")
+func (c *Customer) Name() string {
+	return c.FullName
 }
 
-type bar struct{}
+type Namer interface {
+	Name() string
+}
 
-func (b bar) my() {
-	fmt.Println("bar.my")
+func Greet(n Namer) string {
+	return fmt.Sprintf("Dear %s", n.Name())
 }
 
 func main() {
-
-	f := foo{}
-	b := bar{}
-
-	f.my()
-	f.other()
-
-	b.my()
-
-	var myi []myinterface
-
-	if myi == nil {
-		fmt.Println("myi is nil")
-	}
-
-	myi = append(myi, f)
-	myi = append(myi, b)
-
-	_ = myi
-
-	for _, x := range myi {
-		if y, ok := x.(otherinterface); ok {
-			y.other()
-		}
-
-		switch y := x.(type) {
-		case otherinterface:
-			y.other()
-		case myinterface:
-			fmt.Println("i am not an otherinterface but a myinterface")
-		default:
-			fmt.Println("what the heck!")
-		}
-	}
-
+	u := &User{"Matt", "Aimonetti"}
+	fmt.Println(Greet(u))
+	c := &Customer{42, "Francesc"}
+	fmt.Println(Greet(c))
 }
