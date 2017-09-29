@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
 
 type animals []interface{}
@@ -51,7 +52,7 @@ func main() {
 
 	z := zooInput{}
 
-	j := `{ "name": "zoo", "animals":[ { "type": "dog", "name": "foo", "legs": 4, "weburl": "http://www.dog.com"}, { "type": "fish", "name": "bar"} ] }`
+	j := `{ "name": "zoo", "animals":[ { "type": "dog", "name": "foo", "legs": 4, "weburl": "http://www.dog.com"}, { "type": "fish", "name": "bar", "weburl": "www.fish.com"} ] }`
 
 	json.Unmarshal([]byte(j), &z)
 
@@ -80,14 +81,15 @@ func main() {
 	fmt.Println(string(b))
 }
 
-func (w *WebURLType) MarshalJSON() ([]byte, error) {
-	fmt.Println("marshal")
-	s := fmt.Sprint(*w)
+func (w WebURLType) MarshalJSON() ([]byte, error) {
+	s := fmt.Sprint(w)
 	fmt.Printf("%s: %s\n", "WebURL", s)
-	return json.Marshal(&s)
-}
 
-func (w *animals) MarshalJSON() ([]byte, error) {
-	fmt.Println("marshal animals")
-	return []byte(``), nil
+	_, err := url.ParseRequestURI(s)
+	if err != nil {
+		// delete if URL is not valid
+		s = ""
+	}
+
+	return json.Marshal(&s)
 }
