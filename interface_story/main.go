@@ -19,40 +19,39 @@ type zooMain struct {
 type zooAlias zooInput
 
 type zooInput struct {
-	zooMain
+	*zooMain
 	RawResult []json.RawMessage `json:"animals,omitempty"`
 	Animals   animals           ``
 }
 
-/*
-func (z *zooInput) UnmarshalJSON([]byte) error {
-
-    return nil
-}
-*/
-
 type zooOutput struct {
-	zooMain
+	*zooMain
 	RawResult []json.RawMessage `json:"-"`
 	Animals   animals           `json:"animals"`
 }
 
+type WebURLType string
+
 type dog struct {
-	Type string
-	Name string
-	Legs int
+	Type           string
+	Name           string
+	Legs           int
+	WebURL         WebURLType
+	WebPageContent string
 }
 
 type fish struct {
-	Type string
-	Name string
+	Type           string
+	Name           string
+	WebURL         WebURLType
+	WebPageContent string
 }
 
 func main() {
 
 	z := zooInput{}
 
-	j := `{ "name": "zoo", "animals":[ { "type": "dog", "name": "foo", "legs": 4}, { "type": "fish", "name": "bar"} ] }`
+	j := `{ "name": "zoo", "animals":[ { "type": "dog", "name": "foo", "legs": 4, "weburl": "http://www.dog.com"}, { "type": "fish", "name": "bar"} ] }`
 
 	json.Unmarshal([]byte(j), &z)
 
@@ -73,8 +72,22 @@ func main() {
 
 	z.RawResult = nil
 
-	fmt.Printf("%#v\n", z)
+	fmt.Printf("%#v\n\n", z)
 
-	b, _ := json.Marshal(zooOutput(z))
+	marsh := zooOutput(z)
+	b, _ := json.Marshal(&marsh)
+
 	fmt.Println(string(b))
+}
+
+func (w *WebURLType) MarshalJSON() ([]byte, error) {
+	fmt.Println("marshal")
+	s := fmt.Sprint(*w)
+	fmt.Printf("%s: %s\n", "WebURL", s)
+	return json.Marshal(&s)
+}
+
+func (w *animals) MarshalJSON() ([]byte, error) {
+	fmt.Println("marshal animals")
+	return []byte(``), nil
 }
