@@ -1,0 +1,24 @@
+# docker build -t simple_webserver -f Dockerfile_simple_webserver .
+# docker run -it -p 9090:9090 --name simple_webserver -v /home/ronald/goprojects/src/github.com/ronmueller/go-demo/simple_webserver:/go/src/github.com/ronmueller/go-demo/tree/master/simple_webserver 2fe91bbfeb38
+
+FROM golang:1.9.1
+
+ARG app_env
+ENV APP_ENV $app_env
+
+CMD mkdir -p /go/src/github.com/ronmueller/go-demo/tree/master/simple_webserver
+COPY ./simple_webserver /go/src/github.com/ronmueller/go-demo/tree/master/simple_webserver
+WORKDIR /go/src/github.com/ronmueller/go-demo/tree/master/simple_webserver
+
+RUN go get ./
+RUN go build
+
+CMD if [ ${APP_ENV} = production ]; \
+	then \
+	simple_webserver; \
+	else \
+	go get github.com/pilu/fresh && \
+	fresh; \
+	fi
+	
+EXPOSE 9090
